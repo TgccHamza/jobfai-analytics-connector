@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { Link, useNavigate } from "react-router-dom";
@@ -17,7 +16,7 @@ import {
   Calendar, 
   ChevronDown,
   Filter, 
-  Game, 
+  BoxIcon, 
   Plus, 
   Search, 
   SlidersHorizontal 
@@ -200,7 +199,7 @@ const GamesList: React.FC<GamesListProps> = ({
       <EmptyState
         title={emptyStateTitle}
         description={emptyStateDescription}
-        icon={<Game className="h-12 w-12 opacity-20" />}
+        icon={<BoxIcon className="h-12 w-12 opacity-20" />}
         action={{
           label: "Create Game",
           onClick: onCreateNew,
@@ -228,7 +227,7 @@ const GamesList: React.FC<GamesListProps> = ({
               <TableCell className="font-medium">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center text-primary">
-                    <Game className="h-5 w-5" />
+                    <BoxIcon className="h-5 w-5" />
                   </div>
                   <div>
                     <div className="font-medium">{game.gameName}</div>

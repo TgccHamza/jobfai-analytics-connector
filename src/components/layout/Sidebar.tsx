@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, BarChart, PieChart, Game, Settings, Menu } from "lucide-react";
+import { Home, BarChart, PieChart, Settings, Menu, BoxIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar as SidebarRoot,
@@ -26,7 +26,7 @@ const menuItems = [
   },
   {
     title: "Games",
-    icon: Game,
+    icon: BoxIcon,
     href: "/games",
   },
   {

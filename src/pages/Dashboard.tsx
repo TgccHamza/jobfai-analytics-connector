@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useQuery } from "@apollo/client";
 import { GET_GAMES } from "@/graphql/queries";
@@ -8,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
-import { AreaChart, BarChart3, Game, Plus, User, Users } from "lucide-react";
+import { AreaChart, BarChart3, BoxIcon, Plus, User, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Game {
@@ -89,7 +88,7 @@ const Dashboard: React.FC = () => {
             <Card className="col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Game className="h-5 w-5" />
+                  <BoxIcon className="h-5 w-5" />
                   Recent Games
                 </CardTitle>
               </CardHeader>
@@ -116,7 +115,7 @@ const Dashboard: React.FC = () => {
                       >
                         <div className="flex items-center">
                           <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center text-primary">
-                            <Game className="h-5 w-5" />
+                            <BoxIcon className="h-5 w-5" />
                           </div>
                           <div className="ml-4">
                             <p className="text-sm font-medium">{game.gameName}</p>
