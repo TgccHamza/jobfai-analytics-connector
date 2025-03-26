@@ -25,13 +25,13 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 
 // HTTP connection for queries and mutations
 const httpLink = new HttpLink({
-  uri: 'http://localhost:2000/query', // Updated from 8080 to 2000
+  uri: 'http://localhost:1200/query', // Updated port to 1200
   credentials: 'include'
 });
 
 // WebSocket connection for subscriptions
 const wsLink = new GraphQLWsLink(createClient({
-  url: 'ws://localhost:2000/query', // Updated from 8080 to 2000
+  url: 'ws://localhost:1200/query', // Updated port to 1200
   connectionParams: () => {
     const token = localStorage.getItem('auth_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
