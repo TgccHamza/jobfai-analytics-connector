@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import GamesPage from "./pages/games/GamesPage";
 import GameDetail from "./pages/games/GameDetail";
 import CreateGame from "./pages/games/CreateGame";
+import CompetenciesPage from "./pages/games/CompetenciesPage";
 import AnalyticsPage from "./pages/analytics/AnalyticsPage";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/games" element={<GamesPage />} />
               <Route path="/games/new" element={<CreateGame />} />
               <Route path="/games/:gameId" element={<GameDetail />} />
+              <Route path="/games/:gameId/competencies" element={<CompetenciesPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
