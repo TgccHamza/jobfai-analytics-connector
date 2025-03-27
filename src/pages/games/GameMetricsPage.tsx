@@ -1,7 +1,8 @@
+
 import React from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@apollo/client";
-import { GET_GAME_BY_ID, GET_COMPETENCIES_BY_GAME } from "@/graphql/queries";
+import { GET_GAME_BY_ID, GET_GAME_METRICS_BY_GAME } from "@/graphql/queries";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { 
@@ -22,11 +23,10 @@ import {
 import {
   ChevronRight,
   Plus,
-  Target,
-  ArrowUpDown,
+  Code,
   PlusCircle,
   Info,
-  Scale,
+  Target,
   Eye
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,16 +34,15 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 
-const CompetenciesPage = () => {
+const GameMetricsPage = () => {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   
   const { 
     loading, 
     error, 
-    data,
-    refetch 
-  } = useQuery(GET_COMPETENCIES_BY_GAME, {
+    data 
+  } = useQuery(GET_GAME_METRICS_BY_GAME, {
     variables: { gameId },
   });
 
@@ -52,19 +51,17 @@ const CompetenciesPage = () => {
   });
 
   const game = gameData?.getGameById;
-  const competencies = data?.getCompetenciesByGame;
+  const metrics = data?.getGameMetricsByGame;
 
   if (error) {
-    console.error("Error loading competencies:", error);
-    toast.error("Failed to load competencies");
+    console.error("Error loading game metrics:", error);
+    toast.error("Failed to load game metrics");
   }
 
-  // Add this to ensure users can click to view competency details
-  const handleViewCompetency = (competenceId: string) => {
-    navigate(`/games/${gameId}/competencies/${competenceId}`);
+  const handleViewMetric = (metricId: string) => {
+    navigate(`/games/${gameId}/metrics/${metricId}`);
   };
 
-  // Update the table rows to include click handlers and view buttons
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -72,32 +69,34 @@ const CompetenciesPage = () => {
           Games
         </Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="text-foreground font-medium">
-          {loading ? "Loading..." : game?.gameName} - Competencies
-        </span>
+        <Link to={`/games/${gameId}`} className="hover:text-primary transition-colors">
+          {loading ? "Loading..." : game?.gameName || "Game"}
+        </Link>
+        <ChevronRight className="h-4 w-4" />
+        <span className="text-foreground font-medium">Game Metrics</span>
       </div>
 
       <PageHeader
-        heading="Competencies"
-        description="Manage competencies and their associated metrics"
+        heading="Game Metrics"
+        description="Manage game-wide metrics and calculations"
       >
-        <Button onClick={() => navigate(`/games/${gameId}/competencies/new`)}>
+        <Button onClick={() => navigate(`/games/${gameId}/metrics/new`)}>
           <PlusCircle className="mr-2 h-4 w-4" />
-          Add Competency
+          Add Game Metric
         </Button>
       </PageHeader>
       
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Competencies</CardTitle>
+            <CardTitle>Game Metrics</CardTitle>
             <CardDescription>
-              View and manage all competencies for this game
+              These metrics are applied across the entire game
             </CardDescription>
           </div>
-          <Button onClick={() => navigate(`/games/${gameId}/competencies/new`)}>
+          <Button onClick={() => navigate(`/games/${gameId}/metrics/new`)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add Competency
+            Add Game Metric
           </Button>
         </CardHeader>
         <CardContent>
@@ -107,53 +106,53 @@ const CompetenciesPage = () => {
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
-          ) : competencies && competencies.length > 0 ? (
+          ) : metrics && metrics.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Key</TableHead>
-                  <TableHead>Metrics</TableHead>
-                  <TableHead>Weight</TableHead>
+                  <TableHead>Formula</TableHead>
+                  <TableHead>Parameters</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {competencies.map((competence: any) => (
+                {metrics.map((metric: any) => (
                   <TableRow 
-                    key={competence.competenceId}
+                    key={metric.metricId}
                     className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleViewCompetency(competence.competenceId)}
+                    onClick={() => handleViewMetric(metric.metricId)}
                   >
                     <TableCell>
-                      <div className="font-medium">{competence.competenceName}</div>
-                      {competence.description && (
+                      <div className="font-medium">{metric.metricName}</div>
+                      {metric.metricDescription && (
                         <div className="text-sm text-muted-foreground truncate max-w-[300px]">
-                          {competence.description}
+                          {metric.metricDescription}
                         </div>
                       )}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-mono">
-                        {competence.competenceKey}
+                        {metric.metricKey}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center">
-                        <Target className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span>{competence.metrics?.length || 0}</span>
+                        <Code className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="font-mono text-xs truncate max-w-[150px]">{metric.formula}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center">
-                        <Scale className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span>{competence.weight || 1.0}</span>
+                        <Target className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span>{metric.parameters?.length || 0}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {competence.createdAt ? (
-                        formatDistanceToNow(new Date(competence.createdAt), { addSuffix: true })
+                      {metric.createdAt ? (
+                        formatDistanceToNow(new Date(metric.createdAt), { addSuffix: true })
                       ) : (
                         "Unknown"
                       )}
@@ -164,7 +163,7 @@ const CompetenciesPage = () => {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleViewCompetency(competence.competenceId);
+                          handleViewMetric(metric.metricId);
                         }}
                       >
                         <Eye className="h-4 w-4 mr-2" />
@@ -179,8 +178,15 @@ const CompetenciesPage = () => {
             <div className="flex flex-col items-center justify-center py-8">
               <Info className="h-12 w-12 text-muted-foreground opacity-30 mb-4" />
               <p className="text-sm text-muted-foreground">
-                No competencies found for this game.
+                No game metrics defined yet.
               </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Game metrics apply to the entire game and can aggregate data from multiple stages.
+              </p>
+              <Button onClick={() => navigate(`/games/${gameId}/metrics/new`)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Game Metric
+              </Button>
             </div>
           )}
         </CardContent>
@@ -189,4 +195,4 @@ const CompetenciesPage = () => {
   );
 };
 
-export default CompetenciesPage;
+export default GameMetricsPage;

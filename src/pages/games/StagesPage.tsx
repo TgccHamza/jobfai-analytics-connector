@@ -1,7 +1,8 @@
+
 import React from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@apollo/client";
-import { GET_GAME_BY_ID, GET_COMPETENCIES_BY_GAME } from "@/graphql/queries";
+import { GET_GAME_BY_ID, GET_STAGES_BY_GAME } from "@/graphql/queries";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { 
@@ -22,11 +23,11 @@ import {
 import {
   ChevronRight,
   Plus,
-  Target,
+  Clock,
   ArrowUpDown,
   PlusCircle,
   Info,
-  Scale,
+  LayoutList,
   Eye
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,16 +35,15 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 
-const CompetenciesPage = () => {
+const StagesPage = () => {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   
   const { 
     loading, 
     error, 
-    data,
-    refetch 
-  } = useQuery(GET_COMPETENCIES_BY_GAME, {
+    data 
+  } = useQuery(GET_STAGES_BY_GAME, {
     variables: { gameId },
   });
 
@@ -52,19 +52,17 @@ const CompetenciesPage = () => {
   });
 
   const game = gameData?.getGameById;
-  const competencies = data?.getCompetenciesByGame;
+  const stages = data?.getStagesByGame;
 
   if (error) {
-    console.error("Error loading competencies:", error);
-    toast.error("Failed to load competencies");
+    console.error("Error loading stages:", error);
+    toast.error("Failed to load stages");
   }
 
-  // Add this to ensure users can click to view competency details
-  const handleViewCompetency = (competenceId: string) => {
-    navigate(`/games/${gameId}/competencies/${competenceId}`);
+  const handleViewStage = (stageId: string) => {
+    navigate(`/games/${gameId}/stages/${stageId}`);
   };
 
-  // Update the table rows to include click handlers and view buttons
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -73,31 +71,31 @@ const CompetenciesPage = () => {
         </Link>
         <ChevronRight className="h-4 w-4" />
         <span className="text-foreground font-medium">
-          {loading ? "Loading..." : game?.gameName} - Competencies
+          {loading ? "Loading..." : game?.gameName} - Stages
         </span>
       </div>
 
       <PageHeader
-        heading="Competencies"
-        description="Manage competencies and their associated metrics"
+        heading="Stages"
+        description="Manage game stages and their associated metrics"
       >
-        <Button onClick={() => navigate(`/games/${gameId}/competencies/new`)}>
+        <Button onClick={() => navigate(`/games/${gameId}/stages/new`)}>
           <PlusCircle className="mr-2 h-4 w-4" />
-          Add Competency
+          Add Stage
         </Button>
       </PageHeader>
       
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Competencies</CardTitle>
+            <CardTitle>Stages</CardTitle>
             <CardDescription>
-              View and manage all competencies for this game
+              View and manage all stages for this game
             </CardDescription>
           </div>
-          <Button onClick={() => navigate(`/games/${gameId}/competencies/new`)}>
+          <Button onClick={() => navigate(`/games/${gameId}/stages/new`)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add Competency
+            Add Stage
           </Button>
         </CardHeader>
         <CardContent>
@@ -107,53 +105,59 @@ const CompetenciesPage = () => {
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
-          ) : competencies && competencies.length > 0 ? (
+          ) : stages && stages.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Order</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Key</TableHead>
-                  <TableHead>Metrics</TableHead>
-                  <TableHead>Weight</TableHead>
+                  <TableHead>Optimal Time</TableHead>
+                  <TableHead>Benchmark</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {competencies.map((competence: any) => (
+                {stages.map((stage: any) => (
                   <TableRow 
-                    key={competence.competenceId}
+                    key={stage.stageId}
                     className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleViewCompetency(competence.competenceId)}
+                    onClick={() => handleViewStage(stage.stageId)}
                   >
                     <TableCell>
-                      <div className="font-medium">{competence.competenceName}</div>
-                      {competence.description && (
+                      <Badge variant="outline" className="font-mono">
+                        {stage.stageOrder}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{stage.stageName}</div>
+                      {stage.description && (
                         <div className="text-sm text-muted-foreground truncate max-w-[300px]">
-                          {competence.description}
+                          {stage.description}
                         </div>
                       )}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-mono">
-                        {competence.competenceKey}
+                        {stage.stageKey}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center">
-                        <Target className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span>{competence.metrics?.length || 0}</span>
+                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span>{stage.optimalTime || "N/A"} sec</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center">
-                        <Scale className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span>{competence.weight || 1.0}</span>
+                        <ArrowUpDown className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span>{stage.benchmark || "N/A"}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {competence.createdAt ? (
-                        formatDistanceToNow(new Date(competence.createdAt), { addSuffix: true })
+                      {stage.createdAt ? (
+                        formatDistanceToNow(new Date(stage.createdAt), { addSuffix: true })
                       ) : (
                         "Unknown"
                       )}
@@ -164,7 +168,7 @@ const CompetenciesPage = () => {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleViewCompetency(competence.competenceId);
+                          handleViewStage(stage.stageId);
                         }}
                       >
                         <Eye className="h-4 w-4 mr-2" />
@@ -179,7 +183,7 @@ const CompetenciesPage = () => {
             <div className="flex flex-col items-center justify-center py-8">
               <Info className="h-12 w-12 text-muted-foreground opacity-30 mb-4" />
               <p className="text-sm text-muted-foreground">
-                No competencies found for this game.
+                No stages found for this game.
               </p>
             </div>
           )}
@@ -189,4 +193,4 @@ const CompetenciesPage = () => {
   );
 };
 
-export default CompetenciesPage;
+export default StagesPage;
